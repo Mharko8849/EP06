@@ -1,0 +1,112 @@
+---
+title: "Ep-06"
+author: "Equipo 3"
+date: "2026-05-08"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+paquetes <- c("boot", "caret", "ggfortify", "ggplot2", 
+  "ggpubr", "grid", "gridExtra", "gmodels", "ez", "emmeans", "infer", 
+  "kableExtra", "Hmisc", "knitr", "leaps", "lmtest", "lsmeans", 
+  "multcomp", "nlme", "plyr", "pROC", "purrr", "pwr", "readr", 
+  "scatterplot3d", "psych", "TeachingDemos", "tibble", "tidyr","nortest", "dplyr", "MASS")
+
+install_if_missing <- function(p) {
+  if (!require(p, character.only = TRUE)) {
+    install.packages(p)
+    library(p, character.only = TRUE)
+  }
+}
+invisible(sapply(paquetes, install_if_missing))
+library(conflicted)
+conflicts_prefer(dplyr::select)
+conflicts_prefer(dplyr::filter)
+conflicts_prefer(dplyr::mutate)
+conflicts_prefer(dplyr::pmap())
+```
+
+# Contexto: 
+### En forma similar a la actividad anterior, recordemos que la prueba T de Student permite comparar dos mediciones pareadas de una variable aleatoria, que usualmente provienen de un mismo grupo de individuos u objetos. Ahora estamos conociendo que el análisis de varianza (ANOVA) nos permite comparar más de dos mediciones pareadas. Recordemos que esta prueba está compuesta de una etapa ómnibus, más un análisis post-hoc si corresponde. Este ejercicio apunta a que practiquemos este procedimiento.
+
+# Equipo 3:
+### 1. En este momento, los investigadores buscan determinar si existen diferencias en el tiempo que tardan los usuarios en formular consultas para problemas con diferente nivel de dificultad en el área de química.
+¿Qué debemos determinar o resolver ?
+Debemos determinar si existen diferencias en el tiempo que tardan los usuarios en formular consultas para problemas con diferente nivel de dificultad.
+
+Para ello se comienza con el análisis
+Primero filtramos los datos por el área "Química" y analizamos el impacto de la dificultad (Baja, Media, Alta) en el tiempo, considerando que cada participante pasa por los tres niveles.
+
+```{r}
+# Carga y filtrado de datos
+library(dplyr)
+datos <- read.csv("EP06 Datos.csv", stringsAsFactors = TRUE)
+
+# Filtramos solo el área de Química
+datos_quimica <- datos %>% filter(area == "Química")
+```
+
+Ahora planteamos las hipótesis:
+
+Hipótesis Nula (H0): No existen diferencias significativas en el tiempo promedio que tardan los usuarios en formular consultas para los diferentes niveles de dificultad en el área de química ($\mu_{baja} = \mu_{media} = \mu_{alta}$).
+Hipótesis Alternativa (H_A): Al menos uno de los tiempos promedio de formulación de consultas es diferente para algún nivel de dificultad en el área de química.
+
+Antes de proceder, verificamos las condiciones para aplicar un ANOVA de muestras correlacionadas:
+
+Variable Independiente: Categórica con niveles vinculados (mismos sujetos evalúan las distintas dificultades).
+
+Variable Dependiente: Escala de intervalo o razón (Tiempo en segundos).
+
+Normalidad: Los datos deben seguir una distribución normal.
+
+Esfericidad: Las varianzas de las diferencias entre todos los pares de niveles deben ser iguales (Prueba de Mauchly).
+
+```{r}
+# Nos aseguramos de que los tipos de datos sean correctos para ANOVA
+datos_quimica$dificultad <- factor(datos_quimica$dificultad, levels = c("Baja", "Media", "Alta"))
+datos_quimica$id <- factor(datos_quimica$id)
+
+# Verificación mediante gráfico
+boxplot(tiempo ~ dificultad, data = datos_quimica, 
+        main = "Distribución del tiempo por dificultad (Química)",
+        ylab = "Tiempo (segundos)", xlab = "Dificultad")
+
+# Evaluamos la normalidad para cada grupo de dificultad
+shapiro_resultados <- datos_quimica %>%
+  group_by(dificultad) %>%
+  summarise(p_value = shapiro.test(tiempo)$p.value)
+
+shapiro_resultados
+
+# Ahora si el p-value > 0.05 en todos los grupos, se asume normalidad.  
+
+``` 
+Prueba Ómnibus y Esfericidad:  
+Para verificar el supuesto de esfericidad, se revisará la prueba de Mauchly incluida en los resultados de ezANOVA.  
+Si el p-valor de Mauchly es $> 0.05$, se asume esfericidad y leemos los resultados estándar.  
+Si es $< 0.05$, el supuesto no se cumple y debemos leer los resultados aplicando la corrección de Greenhouse-Geisser (p[GG]).
+
+```{r}
+anova_resultado <- ezANOVA(
+  data = datos_quimica,
+  dv = tiempo,
+  wid = id,
+  within = dificultad,
+  return_aov = TRUE
+)
+anova_resultado
+```
+
+Análisis Post-Hoc:
+Corresponde aplicar un análisis post-hoc si el resultado del ANOVA es significativo ($p < 0.05$), para determinar exactamente entre qué niveles de dificultad radican las diferencias.  
+```{r}
+post_hoc <- pairwise.t.test(
+  x = datos_quimica$tiempo, 
+  g = datos_quimica$dificultad, 
+  p.adjust.method = "holm", 
+  paired = TRUE
+)
+post_hoc
+```
+#### Respuesta: 
