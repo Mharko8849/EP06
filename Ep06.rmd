@@ -110,3 +110,54 @@ post_hoc <- pairwise.t.test(
 post_hoc
 ```
 #### Respuesta: 
+
+### 2. Propongan una pregunta de investigación relacionada a los frameworks de desarrollo web frontend que necesite ser analizado por medio de un procedimiento ANOVA para muestras correlacionadas con un factor que tenga entre 4 y 6 niveles.
+- como equipo proponemos esto
+"¿Existen diferencias estadísticamente significativas en el tiempo promedio de renderizado (en milisegundos) al someter 5.000 componentes web dinámicos idénticos a través de 5 frameworks frontend distintos (React, Angular, Vue, Svelte y SolidJS)?"
+
+```{r simulacion_frameworks}
+# 1. Definición de parámetros
+set.seed(42) # Semilla para reproducibilidad del equipo
+n_casos <- 5000
+frameworks <- c("React", "Angular", "Vue", "Svelte", "SolidJS")
+
+# 2. Generación de datos poblacionales
+# Generamos un "tiempo base" de renderizado para los 5.000 componentes.
+# Esto simula que hay componentes más pesados que otros, generando la correlación.
+tiempo_base <- rnorm(n_casos, mean = 120, sd = 15)
+
+# Simulamos los tiempos para cada framework. 
+# Usar exactamente la misma desviación estándar (sd = 4) en el ruido asegura
+# que las varianzas de las diferencias sean iguales (cumpliendo Esfericidad).
+datos_ancho <- data.frame(
+  id_componente = factor(1:n_casos),
+  React = tiempo_base + rnorm(n_casos, mean = 12, sd = 4),
+  Angular = tiempo_base + rnorm(n_casos, mean = 18, sd = 4),
+  Vue = tiempo_base + rnorm(n_casos, mean = 10, sd = 4),
+  Svelte = tiempo_base + rnorm(n_casos, mean = 2, sd = 4),
+  SolidJS = tiempo_base + rnorm(n_casos, mean = 0, sd = 4)
+)
+
+# 3. Transformación a formato largo (requerido por ezANOVA)
+datos_frameworks <- datos_ancho %>%
+  pivot_longer(
+    cols = all_of(frameworks),
+    names_to = "framework",
+    values_to = "tiempo_ms"
+  ) %>%
+  mutate(framework = factor(framework, levels = frameworks))
+
+# Verificación rápida de la estructura
+head(datos_frameworks)
+
+# 4. Ejecución del ANOVA para muestras correlacionadas
+anova_frameworks <- ezANOVA(
+  data = datos_frameworks,
+  dv = tiempo_ms,
+  wid = id_componente,
+  within = framework,
+  return_aov = TRUE
+)
+
+# Mostrar resultados de la prueba ómnibus y supuesto de esfericidad
+print(anova_frameworks)
