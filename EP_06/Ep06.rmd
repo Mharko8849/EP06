@@ -111,53 +111,71 @@ post_hoc
 ```
 #### Respuesta: 
 
-### 2. Propongan una pregunta de investigación relacionada a los frameworks de desarrollo web frontend que necesite ser analizado por medio de un procedimiento ANOVA para muestras correlacionadas con un factor que tenga entre 4 y 6 niveles.
-- como equipo proponemos esto
-"¿Existen diferencias estadísticamente significativas en el tiempo promedio de renderizado (en milisegundos) al someter 5.000 componentes web dinámicos idénticos a través de 5 frameworks frontend distintos (React, Angular, Vue, Svelte y SolidJS)?"
+### 2. Propongan una pregunta de investigación relacionada a la influencia de distintas metodologías de desarrollo de software que necesite ser analizado por medio de un procedimiento ANOVA para muestras correlacionadas con un factor que tenga entre 4 y 6 niveles. Luego invente una población para cada grupo con 5.000 datos, asegurando que cumpla las suposiciones de esta prueba.
 
-```{r simulacion_frameworks}
-# 1. Definición de parámetros
-set.seed(42) # Semilla para reproducibilidad del equipo
-n_casos <- 5000
-frameworks <- c("React", "Angular", "Vue", "Svelte", "SolidJS")
+**Pregunta de investigación propuesta:**
+¿Existen diferencias significativas en el tiempo (en horas) que tardan los mismos equipos de desarrollo en implementar un módulo de software estandarizado (como un CRUD para una API REST con persistencia en base de datos) al transicionar y aplicar 5 metodologías o marcos de trabajo distintos?
 
-# 2. Generación de datos poblacionales
-# Generamos un "tiempo base" de renderizado para los 5.000 componentes.
-# Esto simula que hay componentes más pesados que otros, generando la correlación.
-tiempo_base <- rnorm(n_casos, mean = 120, sd = 15)
+**Definición del diseño experimental:**
+Para que corresponda a un ANOVA de muestras correlacionadas (medidas repetidas), los mismos sujetos (en este caso, los equipos de desarrollo) deben pasar por todos los niveles del factor.
 
-# Simulamos los tiempos para cada framework. 
-# Usar exactamente la misma desviación estándar (sd = 4) en el ruido asegura
-# que las varianzas de las diferencias sean iguales (cumpliendo Esfericidad).
-datos_ancho <- data.frame(
-  id_componente = factor(1:n_casos),
-  React = tiempo_base + rnorm(n_casos, mean = 12, sd = 4),
-  Angular = tiempo_base + rnorm(n_casos, mean = 18, sd = 4),
-  Vue = tiempo_base + rnorm(n_casos, mean = 10, sd = 4),
-  Svelte = tiempo_base + rnorm(n_casos, mean = 2, sd = 4),
-  SolidJS = tiempo_base + rnorm(n_casos, mean = 0, sd = 4)
+* **Sujetos:** Equipos de desarrollo de software.
+* **Variable Independiente (Factor de medidas repetidas):** Metodología de desarrollo de software. Contará con **5 niveles**: Cascada, Scrum, Kanban, Extreme Programming (XP) y Lean.
+* **Variable Dependiente:** Tiempo de implementación (en horas).
+
+**Hipótesis:**
+* **Hipótesis Nula ($H_0$):** No existen diferencias en el tiempo promedio de implementación entre las distintas metodologías de desarrollo ($\mu_{Cascada} = \mu_{Scrum} = \mu_{Kanban} = \mu_{XP} = \mu_{Lean}$).
+* **Hipótesis Alternativa ($H_A$):** Al menos una de las metodologías de desarrollo presenta un tiempo promedio de implementación distinto a las demás para estos equipos.
+
+**Generación de la Población (Simulación de Datos):**
+Para crear una población de 5.000 equipos, aseguraremos que la variable dependiente (tiempo en horas) provenga de una distribución normal para cada grupo. Además, configuraremos la matriz de correlación para que las diferencias entre las varianzas cumplan el supuesto de esfericidad (condición necesaria para este ANOVA).
+
+```{r}
+# Semilla para reproducibilidad
+set.seed(42)
+
+# Definir el número de sujetos (5000 equipos)
+n_equipos <- 5000
+
+# Medias teóricas para cada metodología (en horas)
+# Asumimos que algunas ágiles bajan el tiempo respecto a Cascada
+mu_cascada <- 120
+mu_scrum <- 95
+mu_kanban <- 90
+mu_xp <- 85
+mu_lean <- 88
+
+# Generamos los datos asumiendo una distribución normal para cada nivel.
+# Para simplificar la generación de muestras correlacionadas que cumplan esfericidad,
+# creamos un "efecto de equipo" base y le sumamos el efecto de la metodología
+# con un ruido aleatorio normal.
+
+efecto_equipo <- rnorm(n_equipos, mean = 0, sd = 15)
+
+tiempo_cascada <- mu_cascada + efecto_equipo + rnorm(n_equipos, mean = 0, sd = 10)
+tiempo_scrum   <- mu_scrum   + efecto_equipo + rnorm(n_equipos, mean = 0, sd = 10)
+tiempo_kanban  <- mu_kanban  + efecto_equipo + rnorm(n_equipos, mean = 0, sd = 10)
+tiempo_xp      <- mu_xp      + efecto_equipo + rnorm(n_equipos, mean = 0, sd = 10)
+tiempo_lean    <- mu_lean    + efecto_equipo + rnorm(n_equipos, mean = 0, sd = 10)
+
+# Armamos el dataframe en formato ancho y luego lo pasamos a formato largo
+datos_poblacion_ancha <- data.frame(
+  id_equipo = factor(1:n_equipos),
+  Cascada = tiempo_cascada,
+  Scrum = tiempo_scrum,
+  Kanban = tiempo_kanban,
+  XP = tiempo_xp,
+  Lean = tiempo_lean
 )
 
-# 3. Transformación a formato largo (requerido por ezANOVA)
-datos_frameworks <- datos_ancho %>%
+datos_poblacion <- datos_poblacion_ancha %>%
   pivot_longer(
-    cols = all_of(frameworks),
-    names_to = "framework",
-    values_to = "tiempo_ms"
+    cols = c(Cascada, Scrum, Kanban, XP, Lean),
+    names_to = "metodologia",
+    values_to = "tiempo"
   ) %>%
-  mutate(framework = factor(framework, levels = frameworks))
+  mutate(metodologia = factor(metodologia, levels = c("Cascada", "Scrum", "Kanban", "XP", "Lean")))
 
-# Verificación rápida de la estructura
-head(datos_frameworks)
-
-# 4. Ejecución del ANOVA para muestras correlacionadas
-anova_frameworks <- ezANOVA(
-  data = datos_frameworks,
-  dv = tiempo_ms,
-  wid = id_componente,
-  within = framework,
-  return_aov = TRUE
-)
-
-# Mostrar resultados de la prueba ómnibus y supuesto de esfericidad
-print(anova_frameworks)
+# Verificación rápida de los datos generados
+head(datos_poblacion)
+summary(datos_poblacion)
