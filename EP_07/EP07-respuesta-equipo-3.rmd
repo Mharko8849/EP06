@@ -221,7 +221,75 @@ El análisis mediante la prueba ómnibus no paramétrica de Kruskal-Wallis arroj
 Posteriormente, el análisis post-hoc determinó que estas diferencias significativas radican específicamente al comparar la versión A con la B (p = 0.03). Por el contrario, no se encontró evidencia de diferencias significativas entre las versiones A y C (p = 0.13) ni entre las versiones B y C (p = 0.13). En conclusión, los datos respaldan la intuición de la memorista de que existen diferencias en los tiempos de ejecución.
 
 ### 4. La memorista también sospecha que, al comparar las mismas instancias con iguales características, las mejores soluciones encontradas por las diferentes versiones del algoritmo tienen rendimientos distintos. ¿Estará en lo cierto? Para responder, filtren los datos para tener las instancias con 50 o más nodos y seleccionen las columnas con los mejores rendimientos registrados. Usando como semilla el valor 16, obtengan una muestra aleatoria de 22 instancias. Realicen un análisis estadístico pertinente (enunciar hipótesis, revisar condiciones, seleccionar pruebas ómnibus y post-hoc según corresponda) para responder la pregunta planteada, utilizando pruebas no paramétricas de ser necesario.
+
 ¿Qué debemos determinar o resolver?
+Debemos determinar si existen diferencias significativas en el rendimiento de las mejores soluciones encontradas por las diferentes versiones del algoritmo, evaluando las mismas instancias de prueba. Estaremos comparando el comportamiento de versiones sobre las mismas 22 instancias filtradas, por lo que nos encontramos ante muestras correlacionadas o de medidas repetidas de más de dos niveles.
+
+Preparamos los datos:
+
+```{r}
+datos_filtrados_q4 <- datos |> filter(n.nodos >= 50)
+# semilla
+set.seed(16)
+# muestreo de 22 instancias
+datos_muestra_q4 <- datos_filtrados_q4 |> slice_sample(n = 22, replace = FALSE)
+# Se preparan los datos en formato largo para el ANOVA y los supuestos
+datos_select_q4 <- datos_muestra_q4 |> select(instancia, mejor.A, mejor.B, mejor.C)
+# se transforma a formato largo
+datos_q4_largos <- datos_select_q4 |> pivot_longer(
+                    cols = c(mejor.A, mejor.B, mejor.C),
+                    names_to = "version",
+                    values_to = "rendimiento"
+                  )
+datos_q4_largos = datos_q4_largos |> mutate(instancia = factor(instancia))
+head(datos_q4_largos)
+```
+
+Planteamos las hipótesis para la prueba ómnibus:
+
+- Hipótesis Nula ($H_0$): No hay diferencias en el rendimiento medio de las mejores soluciones encontradas por las tres diferentes versiones del algoritmo ($\mu_A = \mu_B = \mu_C$). 
+
+- Hipótesis Alternativa ($H_A$): Al menos una de las versiones del algoritmo tiene un rendimiento medio distinto a las demas en estas instancias.
+
+Antes de proceder, verificamos las condiciones:  
+1- Escala de intervalos iguales para variable dependiente: rendimiento es una variable numérica continua, se cumple.
+2- Independencia de observaciones al interior de la muestra: las 22 instancias fueron extraídas de manera aleatoria con una semilla definida, así que se cumple.
+3- Distribución normal de las poblaciones: lo probaremos con shapiro.test.
+4- Esfericidad: se evaluará con prueba de Mauchly si se cumple la tercera condición.
+
+```{r}
+prueba_normalidad_q4 <- datos_q4_largos |>
+  group_by(version) |>
+  summarise(
+    estadistico_W = shapiro.test(rendimiento)$statistic,
+    valor_p = shapiro.test(rendimiento)$p.value
+  )
+
+prueba_normalidad_q4
+```
+
+Dado que el test Shapiro muestra un p-value inferior a 0.05 para todas las versiones del algoritmo, podemos rechazar la hipótesis nula del test y concluir que las distribuciones de los tres grupos no son normales.
+Al fallar el supuesto de normalidad, debemos optar por la prueba alternativa no paramétrica para más de dos muestras repetidas, la prueba de Friedman. Las hipótesis para la muestra son:
+
+- Hipótesis Nula ($H_0$): El rendimiento de las tres versiones del algoritmo proviene de poblaciones con distribuciones iguales
+
+- Hipótesis Alternativa ($H_A$): Al menos una de las versiones del algoritmo tiene una distribución de rendimiento distinta de la de otra versión.
+
+```{r}
+friedman <- friedman.test(rendimiento ~ version | instancia, data = datos_q4_largos)
+friedman
+```
+Con un p-value de 0.002, podemos rechazar la hipótesis nula y concluir que al menos una versión del algoritmo presenta una distribución de rendimiento distinta de otra. Para poder identificar en dónde está la diferencia, necesitamos hacer el procedimiento post-hoc.
+```{r}
+post_hoc_q4 <- pairwise.wilcox.test(
+  x = datos_q4_largos$rendimiento, 
+  g = datos_q4_largos$version, 
+  p.adjust.method = "holm", 
+  paired = TRUE,
+  exact = FALSE
+)
+post_hoc_q4
+```
 
 
 #### Respuesta:
