@@ -291,5 +291,5 @@ post_hoc_q4 <- pairwise.wilcox.test(
 post_hoc_q4
 ```
 
-
 #### Respuesta:
+La sospecha de la memorista, quien pensaba que al comparar las mismas instancias con iguales características, las mejores soluciones encontradas por las diferentes versiones del algoritmo iban a tener rendimientos distintos, era correcta y la memorista estaba en lo cierto. La prueba ómnibus de Friedman utilizada para poder identificar la existencia o no de esta diferencia arrojó un p-value menor a 0.05, confirmando la sospecha. Concretamente, después de un procedimiento post-hoc, podemos afirmar que existe una diferencia en las distribución de rendimiento de la versión A del algoritmo con la versión B con un p-value de 0.0059. A su vez, no se encontró evidencia suficiente a través del análisis post-hoc para decir que los rendimientos de las versiones A y B tuvieran una diferencia significativa con la versión C, con p-values 0.0883 tanto para el par A-C como para el par B-C. 
