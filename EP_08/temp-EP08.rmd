@@ -1,0 +1,42 @@
+---
+title: "Ep-08"
+author: "Equipo 3"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning = FALSE}
+# knitr::opts_chunk$set(echo = TRUE)
+paquetes <- c("boot", "car", "caret", "ggfortify", "ggplot2", 
+  "ggpubr", "grid", "gridExtra", "gmodels", "ez", "emmeans", "infer", 
+  "kableExtra", "Hmisc", "knitr", "leaps", "lmtest", "lsmeans", 
+  "multcomp", "nlme", "plyr", "pROC", "purrr", "pwr", "readr", 
+  "scatterplot3d", "psych", "TeachingDemos", "tibble", "tidyr","nortest", "dplyr", "MASS")
+
+install_if_missing <- function(p) {
+  if (!require(p, character.only = TRUE)) {
+    install.packages(p)
+    library(p, character.only = TRUE)
+  }
+}
+invisible(sapply(paquetes, install_if_missing))
+library(conflicted)
+conflicts_prefer(dplyr::select)
+conflicts_prefer(dplyr::filter)
+conflicts_prefer(dplyr::mutate)
+conflicts_prefer(dplyr::pmap())
+conflicts_prefer(dplyr::summarise())
+```
+## Pregunta 2
+## Propongan una pregunta de investigación original, que involucre la comparación de las medias de más de dos grupos independientes (más abajo se dan unos ejemplos). Fijando una semilla distinta a la anterior, seleccionen una muestra aleatoria de hogares (200 < n < 300) y respondan la pregunta propuesta utilizando bootstrapping. Solo por ejercicio académico, aplique un análisis post-hoc con bootstrapping aunque este no fuera necesario. Indicación: consideren que el análisis post-hoc debe hacerse con las mismas remuestras usadas para la prueba ómnibus.
+
+## Pregunta propuesta: ¿Difiere el ingreso per cápita promedio del hogar (ytotcorh / numper) de las personas del área de "Ingeniería y Profesiones Afines" (e7.subarea), según se desempeñen como "Empleado u obrero de empresas públicas", "Empleado u obrero del sector privado" o "Empleado u obrero del sector público (Gobierno Central o Mun" (o16)?
+
+#### (el nombre completo del último grupo es "Empleado u obrero del sector público (Gobierno Central o Municipal)", pero en el archivo sale cortado. aclaramos que es el mismo grupo)
+
+
+```{r}
+datos <- read.csv("EP08 Datos CASEN 2017.csv", sep=",")
+head(datos)
+```
+
