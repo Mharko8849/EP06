@@ -30,13 +30,55 @@ conflicts_prefer(dplyr::summarise())
 ## Pregunta 2
 ## Propongan una pregunta de investigación original, que involucre la comparación de las medias de más de dos grupos independientes (más abajo se dan unos ejemplos). Fijando una semilla distinta a la anterior, seleccionen una muestra aleatoria de hogares (200 < n < 300) y respondan la pregunta propuesta utilizando bootstrapping. Solo por ejercicio académico, aplique un análisis post-hoc con bootstrapping aunque este no fuera necesario. Indicación: consideren que el análisis post-hoc debe hacerse con las mismas remuestras usadas para la prueba ómnibus.
 
-## Pregunta propuesta: ¿Difiere el ingreso per cápita promedio del hogar (ytotcorh / numper) de las personas del área de "Ingeniería y Profesiones Afines" (e7.subarea), según se desempeñen como "Empleado u obrero de empresas públicas", "Empleado u obrero del sector privado" o "Empleado u obrero del sector público (Gobierno Central o Mun" (o16)?
+## Pregunta propuesta: ¿Difiere el ingreso per cápita promedio del hogar (ytotcorh / numper) de las personas del área de "Ingeniería y Profesiones Afines" (e7.subarea), según se desempeñen como "Empleado u obrero de empresas públicas", "Empleado u obrero del sector privado" o "Empleado u obrero del sector público (Gobierno Central o Mun" (o15)?
 
 #### (el nombre completo del último grupo es "Empleado u obrero del sector público (Gobierno Central o Municipal)", pero en el archivo sale cortado. aclaramos que es el mismo grupo)
 
+### ¿Qué debemos determinar o resolver?
+### Debemos determinar si existen diferencias significativas en el ingreso per cápita promedio del hogar entre profesionales de "Ingeniería y profesiones afines", dependiendo si su ocupación pertenece al sector privado, de empresas públicas o sector público (Gobierno Central o Municipalidad). 
+### Para ello comenzamos filtrando la base de datos para seleccionar los datos de interés para responder la pregunta y eliminar el resto, para luego extraer una muestra aleatoria de 250 hogares con sólo la información necesaria.
 
 ```{r}
 datos <- read.csv("EP08 Datos CASEN 2017.csv", sep=",")
-head(datos)
+#filtramos por los datos relevantes para la pregunta
+grupos_interes <- c("Empleado u obrero de empresas públicas",
+                    "Empleado u obrero del sector privado",
+                    "Empleado u obrero del sector público (Gobierno Central o Mun")
+
+datos_interes <- datos |> filter(e7.subarea == "Ingeniería y Profesiones Afines",
+                                 o15 %in% grupos_interes) |> mutate(
+                                   ingreso_percap = ytotcorh / numper) |> filter(
+                                     !is.na(ingreso_percap)) |> select(
+                                       o15, ingreso_percap) |> mutate(o15 = factor(o15)
+                                     )
+
+#selección de semilla
+set.seed(444)
+muestra <- datos_interes |> sample_n(250)
+table(muestra$o15)
+str(muestra)
 ```
 
+### - Hipótesis Nula ($H_0$): El ingreso per cápita promedio del hogar es igual en los tres sectores ocupacionales para los profesionales de ingeniería
+#### ($\mu_{empresa pública} = \mu_{privado} = \mu_{público}$).
+
+### - Hipótesis alternativa ($H_A$): Al menos uno de los sectores ocupacionales presenta un ingreso per cápita promedio del hogar distinto de los demás.
+
+### Condiciones para el Bootstrapping de una vía:
+#### 1. La variable independiente es categórica con tres niveles independientes y la variable dependiente es continua: se cumple, se comparan tres sectores ocupacionales independientes respecto al ingreso per cápita
+#### 2. Las observaciones son independientes entre sí: se cumple, la encuesta CASEN está estructurada de tal forma que se encuestan hogares de forma aleatoria y sin necesariamente una conexión entre sí. La muestra extraída se hace en forma aleatoria también, con una semilla definida para poder ser reproducida.
+#### 3. Tamaño muestral adecuado: se cumple, el tamaño total de la muestra, de $n = 250$, es suficiente para modelar empíricamente la variabilidad poblacional mediante muestreo.
+
+### A continuación, se procede con la prueba ómnibus aplicando bootstrapping
+
+```{r}
+
+```
+
+### (post-hoc)
+
+```{r}
+
+```
+
+### Conclusión: 

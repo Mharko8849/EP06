@@ -371,257 +371,70 @@ aunque este no fuera necesario. Indicación: consideren que el análisis
 post-hoc debe hacerse con las mismas remuestras usadas para la prueba
 ómnibus.</h2>
 </div>
-<div id="pregunta-propuesta-difiere-el-ingreso-per-cápita-promedio-del-hogar-ytotcorh-numper-de-las-personas-del-área-de-ingeniería-y-profesiones-afines-e7.subarea-según-se-desempeñen-como-empleado-u-obrero-de-empresas-públicas-empleado-u-obrero-del-sector-privado-o-empleado-u-obrero-del-sector-público-gobierno-central-o-mun-o16" class="section level2">
+<div id="pregunta-propuesta-difiere-el-ingreso-per-cápita-promedio-del-hogar-ytotcorh-numper-de-las-personas-del-área-de-ingeniería-y-profesiones-afines-e7.subarea-según-se-desempeñen-como-empleado-u-obrero-de-empresas-públicas-empleado-u-obrero-del-sector-privado-o-empleado-u-obrero-del-sector-público-gobierno-central-o-mun-o15" class="section level2">
 <h2>Pregunta propuesta: ¿Difiere el ingreso per cápita promedio del
 hogar (ytotcorh / numper) de las personas del área de “Ingeniería y
 Profesiones Afines” (e7.subarea), según se desempeñen como “Empleado u
 obrero de empresas públicas”, “Empleado u obrero del sector privado” o
 “Empleado u obrero del sector público (Gobierno Central o Mun”
-(o16)?</h2>
+(o15)?</h2>
 <div id="el-nombre-completo-del-último-grupo-es-empleado-u-obrero-del-sector-público-gobierno-central-o-municipal-pero-en-el-archivo-sale-cortado.-aclaramos-que-es-el-mismo-grupo" class="section level4">
 <h4>(el nombre completo del último grupo es “Empleado u obrero del
 sector público (Gobierno Central o Municipal)”, pero en el archivo sale
 cortado. aclaramos que es el mismo grupo)</h4>
+</div>
+<div id="qué-debemos-determinar-o-resolver" class="section level3">
+<h3>¿Qué debemos determinar o resolver?</h3>
+</div>
+<div id="debemos-determinar-si-existen-diferencias-significativas-en-el-ingreso-per-cápita-promedio-del-hogar-entre-profesionales-de-ingeniería-y-profesiones-afines-dependiendo-si-su-ocupación-pertenece-al-sector-privado-de-empresas-públicas-o-sector-público-gobierno-central-o-municipalidad." class="section level3">
+<h3>Debemos determinar si existen diferencias significativas en el
+ingreso per cápita promedio del hogar entre profesionales de “Ingeniería
+y profesiones afines”, dependiendo si su ocupación pertenece al sector
+privado, de empresas públicas o sector público (Gobierno Central o
+Municipalidad).</h3>
+</div>
+<div id="para-ello-comenzamos-filtrando-la-base-de-datos-para-seleccionar-los-datos-de-interés-para-responder-la-pregunta-y-eliminar-el-resto-para-luego-extraer-una-muestra-aleatoria-de-250-hogares-con-sólo-la-información-necesaria." class="section level3">
+<h3>Para ello comenzamos filtrando la base de datos para seleccionar los
+datos de interés para responder la pregunta y eliminar el resto, para
+luego extraer una muestra aleatoria de 250 hogares con sólo la
+información necesaria.</h3>
 <pre class="r"><code>datos &lt;- read.csv(&quot;EP08 Datos CASEN 2017.csv&quot;, sep=&quot;,&quot;)
-head(datos)</code></pre>
-<pre><code>##   id.vivienda             region   sexo edad
-## 1  1101100202 Región de Tarapacá  Mujer   56
-## 2  1101100203 Región de Tarapacá  Mujer   21
-## 3  1101100204 Región de Tarapacá Hombre   24
-## 4  1101100205 Región de Tarapacá Hombre   26
-## 5  1101100206 Región de Tarapacá  Mujer   62
-## 6  1101100209 Región de Tarapacá  Mujer   59
-##                                            ecivil                      pareja
-## 1                                      Soltero(a) No tiene pareja en el hogar
-## 2                                      Soltero(a) No tiene pareja en el hogar
-## 3 Conviviente o pareja sin acuerdo de unión civil                    De hecho
-## 4                                       Casado(a)                       Legal
-## 5                                      Soltero(a) No tiene pareja en el hogar
-## 6                                     Separado(a) No tiene pareja en el hogar
-##                 h10a               h10b               h10c               h10d
-## 1 No, sin dificultad No, sin dificultad No, sin dificultad No, sin dificultad
-## 2 No, sin dificultad No, sin dificultad No, sin dificultad No, sin dificultad
-## 3 No, sin dificultad No, sin dificultad No, sin dificultad No, sin dificultad
-## 4 No, sin dificultad No, sin dificultad No, sin dificultad No, sin dificultad
-## 5 No, sin dificultad No, sin dificultad No, sin dificultad No, sin dificultad
-## 6 No, sin dificultad No, sin dificultad No, sin dificultad No, sin dificultad
-##                 h10e               h10f
-## 1 No, sin dificultad No, sin dificultad
-## 2 No, sin dificultad No, sin dificultad
-## 3 No, sin dificultad No, sin dificultad
-## 4 No, sin dificultad No, sin dificultad
-## 5 No, sin dificultad No, sin dificultad
-## 6 No, sin dificultad No, sin dificultad
-##                                                     e6a
-## 1                  Educación Media Científico-Humanista
-## 2                                      Educación Básica
-## 3                  Educación Media Científico-Humanista
-## 4 Técnico Nivel Superior Completo (Carreras 1 a 3 años)
-## 5                         Humanidades (Sistema Antiguo)
-## 6                  Educación Media Científico-Humanista
-##                        e7.subarea                          e7.cod.area
-## 1                            &lt;NA&gt;                                 &lt;NA&gt;
-## 2                            &lt;NA&gt;                                 &lt;NA&gt;
-## 3                            &lt;NA&gt;                                 &lt;NA&gt;
-## 4 Ingeniería y Profesiones Afines Ingeniería, Industria y Construcción
-## 5                            &lt;NA&gt;                                 &lt;NA&gt;
-## 6                            &lt;NA&gt;                                 &lt;NA&gt;
-##                      e8 o1
-## 1                  &lt;NA&gt; Sí
-## 2                  &lt;NA&gt; Sí
-## 3                  &lt;NA&gt; Sí
-## 4 Instituto Profesional No
-## 5                  &lt;NA&gt; Sí
-## 6                  &lt;NA&gt; Sí
-##                                                 oficio1 o10         o12
-## 1                            Trabajadores no calificado   8 Permanente?
-## 2                            Trabajadores no calificado  59 Permanente?
-## 3 Trabajadores de los servicios y vendedores de comerci   8 Permanente?
-## 4                            Trabajadores no calificado   8 Permanente?
-## 5                            Trabajadores no calificado   8 Permanente?
-## 6    Operadores de instalaciones y máquinas y montadore  70 Permanente?
-##                                    o15              o16                    o17
-## 1         Trabajador por cuenta propia             &lt;NA&gt;                   &lt;NA&gt;
-## 2    Servicio doméstico puertas afuera       Plazo fijo               No tiene
-## 3 Empleado u obrero del sector privado       Plazo fijo Sí, pero no ha firmado
-## 4 Empleado u obrero del sector privado Plazo indefinido              Sí, firmó
-## 5         Trabajador por cuenta propia             &lt;NA&gt;                   &lt;NA&gt;
-## 6 Empleado u obrero del sector privado Plazo indefinido              Sí, firmó
-##                 o18               o19
-## 1              &lt;NA&gt;              &lt;NA&gt;
-## 2 Jornada completa?       Sólo diurno
-## 3 Jornada completa?       Sólo diurno
-## 4 Jornada completa? Rotativo o turnos
-## 5              &lt;NA&gt;              &lt;NA&gt;
-## 6 Jornada completa?       Sólo diurno
-##                                                   o20
-## 1                                                &lt;NA&gt;
-## 2 Directamente con la empresa o negocio donde trabaja
-## 3 Directamente con la empresa o negocio donde trabaja
-## 4 Directamente con la empresa o negocio donde trabaja
-## 5                                                &lt;NA&gt;
-## 6 Directamente con la empresa o negocio donde trabaja
-##                                     rama1                               o23
-## 1    Comercio al por mayor y al por menor Sólo 1 personas (el entrevistado)
-## 2 Hogares privados con servicio doméstico Sólo 1 personas (el entrevistado)
-## 3                  Hoteles y restaurantes                 De 6 a 9 personas
-## 4 Hogares privados con servicio doméstico                 De 6 a 9 personas
-## 5                  Hoteles y restaurantes                 De 2 a 5 personas
-## 6    Comercio al por mayor y al por menor                           No sabe
-##   o24a o24b o24c o24d
-## 1   No   No   No   No
-## 2   No   No   No   No
-## 3   No   No   No   No
-## 4   No   No   No   No
-## 5   No   No   No   No
-## 6   Si   No   No   No
-##                                                           o25c o28
-## 1                                                        A pie  No
-## 2                                                        A pie  No
-## 3                                                        A pie  Sí
-## 4                                                 En bicicleta  Sí
-## 5                                                        A pie  Sí
-## 6 Transporte público (bus, microbús, metro, taxi colectivo, et  Sí
-##                                                            o29
-## 1                                                         &lt;NA&gt;
-## 2                                                         &lt;NA&gt;
-## 3 Sí, AFP (Administradora de Fondos de Pensiones). Cotización 
-## 4 Sí, AFP (Administradora de Fondos de Pensiones). Cotización 
-## 5                                            No está cotizando
-## 6                                                      No sabe
-##                                            ch1 y2.dias y2.hrs
-## 1 Patrón o empleador/ Trabajador Cuenta Propia      NA     NA
-## 2                                   Asalariado      30    200
-## 3                                   Asalariado      30    178
-## 4                                   Asalariado      30    178
-## 5 Patrón o empleador/ Trabajador Cuenta Propia      NA     NA
-## 6                                   Asalariado      30    146
-##                             ch2                    y21a y21b y26.1c
-## 1                          &lt;NA&gt; No, no ha sido invitada    9     No
-## 2 No tiene ocupación secundaria No, no ha sido invitada   No     No
-## 3 No tiene ocupación secundaria          No, otra razón   No     No
-## 4 No tiene ocupación secundaria          No, otra razón   No     No
-## 5                          &lt;NA&gt; No, no ha sido invitada   No     No
-## 6    Tiene ocupación secundaria No, no ha sido invitada   No     No
-##                  y27a                y27b                y27c
-## 1                  No                  No                  No
-## 2                  No                  No                  No
-## 3 No sabe/No responde No sabe/No responde No sabe/No responde
-## 4 No sabe/No responde No sabe/No responde No sabe/No responde
-## 5                  No                  No                  No
-## 6                  Si                  No                  No
-##                  y27d                y27e                y27f
-## 1                  No                  No                  No
-## 2                  No                  No                  No
-## 3 No sabe/No responde No sabe/No responde No sabe/No responde
-## 4 No sabe/No responde No sabe/No responde No sabe/No responde
-## 5                  No                  No                  No
-## 6                  No No sabe/No responde No sabe/No responde
-##                  y27g s4 s12        s13
-## 1                  No 21   1          4
-## 2                  No  0   1          5
-## 3 No sabe/No responde  0   1          4
-## 4                  No  1   1    No sabe
-## 5                  No  4   1          3
-## 6 No sabe/No responde  3   1 1. Muy mal
-##                                                            s28  s29
-## 1 No ha estado en tratamiento por ninguna condicion de salud a &lt;NA&gt;
-## 2 No ha estado en tratamiento por ninguna condicion de salud a &lt;NA&gt;
-## 3 No ha estado en tratamiento por ninguna condicion de salud a &lt;NA&gt;
-## 4 No ha estado en tratamiento por ninguna condicion de salud a &lt;NA&gt;
-## 5 No ha estado en tratamiento por ninguna condicion de salud a &lt;NA&gt;
-## 6 No ha estado en tratamiento por ninguna condicion de salud a &lt;NA&gt;
-##                                                   ch4 s34a
-## 1 No tiene dificultades para realizar sus actividades &lt;NA&gt;
-## 2 No tiene dificultades para realizar sus actividades &lt;NA&gt;
-## 3 No tiene dificultades para realizar sus actividades &lt;NA&gt;
-## 4 No tiene dificultades para realizar sus actividades &lt;NA&gt;
-## 5 No tiene dificultades para realizar sus actividades &lt;NA&gt;
-## 6 No tiene dificultades para realizar sus actividades &lt;NA&gt;
-##                                   r1a r1a.cod r1c.año
-## 1 Otra nacionalidad. Especifique país    Perú    1992
-## 2 Otra nacionalidad. Especifique país Bolivia    2015
-## 3                 Chilena (Exclusiva)    &lt;NA&gt;    &lt;NA&gt;
-## 4 Otra nacionalidad. Especifique país    Perú    2014
-## 5                 Chilena (Exclusiva)    &lt;NA&gt;    &lt;NA&gt;
-## 6                 Chilena (Exclusiva)    &lt;NA&gt;    &lt;NA&gt;
-##                                      r3                   r11
-## 1                                Aimara          Ambos padres
-## 2 No pertenece a ningún pueblo indígena          Ambos padres
-## 3 No pertenece a ningún pueblo indígena         Sólo su madre
-## 4 No pertenece a ningún pueblo indígena          Ambos padres
-## 5 No pertenece a ningún pueblo indígena Ninguno de sus padres
-## 6 No pertenece a ningún pueblo indígena          Ambos padres
-##                                   r12a
-## 1 Primaria o Preparatoria (S. Antiguo)
-## 2                        Nunca asistió
-## 3 Educación Media Científico-Humanista
-## 4 Educación Media Científico-Humanista
-## 5                              No sabe
-## 6                     Educación Básica
-##                                             r12b r14  r15 r16a r16b r16c r16d
-## 1            Educación Media Técnica Profesional  No &lt;NA&gt;   No   No   Sí   No
-## 2                                  Nunca asistió  No &lt;NA&gt;   No   No   Sí   No
-## 3                                        No sabe  No &lt;NA&gt;   No   No   Sí   Sí
-## 4           Educación Media Científico-Humanista  No &lt;NA&gt;   No   No   Sí   No
-## 5                                        No sabe  No &lt;NA&gt;   No   No   Sí   No
-## 6 Técnico Nivel Superior (carrera de 1 a 3 años)  No &lt;NA&gt;   Sí   No   No   No
-##   r16e r17a                r17b                r17c                r17d
-## 1   No   No                  No                  No                  No
-## 2   No   No                  No                  No                  No
-## 3   No   No                  No                  Sí                  No
-## 4   No   No No sabe/no responde No sabe/no responde No sabe/no responde
-## 5   No   No                  No                  No                  No
-## 6   No   No                  Sí                  No                  No
-##            r22                                            r23
-## 1  Sí, prepago Heterosexual (Atracción hacia el sexo opuesto)
-## 2  Sí, prepago Heterosexual (Atracción hacia el sexo opuesto)
-## 3 Sí, contrato   Gay/Lesbiana (Atracción hacia el mismo sexo)
-## 4  Sí, prepago                                           &lt;NA&gt;
-## 5  Sí, prepago Heterosexual (Atracción hacia el sexo opuesto)
-## 6  Sí, prepago Heterosexual (Atracción hacia el sexo opuesto)
-##                                      v1
-## 1          Casa pareada por ambos lados
-## 2          Casa pareada por ambos lados
-## 3          Casa pareada por ambos lados
-## 4          Casa pareada por ambos lados
-## 5 Departamento en edificio con ascensor
-## 6          Casa pareada por ambos lados
-##                                                             v2        v3
-## 1 Tabique forrado por ambas caras (madera, acero, lata u otro) Aceptable
-## 2 Tabique forrado por ambas caras (madera, acero, lata u otro) Aceptable
-## 3 Tabique forrado por ambas caras (madera, acero, lata u otro) Aceptable
-## 4 Tabique forrado por ambas caras (madera, acero, lata u otro) Aceptable
-## 5 Tabique forrado por ambas caras (madera, acero, lata u otro)     Bueno
-## 6 Tabique forrado por ambas caras (madera, acero, lata u otro) Aceptable
-##                                         v4        v5
-## 1 Parquet, madera, piso flotante o similar Aceptable
-## 2 Parquet, madera, piso flotante o similar Aceptable
-## 3 Parquet, madera, piso flotante o similar      Malo
-## 4 Parquet, madera, piso flotante o similar Aceptable
-## 5  Cerámico, porcelanato, flexit o similar     Bueno
-## 6  Cerámico, porcelanato, flexit o similar     Bueno
-##                                       v6        v7 v8                     v9
-## 1 Planchas metálicas (zinc, cobre, etc.) Aceptable  1 Arrendado sin contrato
-## 2 Planchas metálicas (zinc, cobre, etc.)      Malo  1 Arrendado sin contrato
-## 3 Planchas metálicas (zinc, cobre, etc.)      Malo  1 Arrendado sin contrato
-## 4 Planchas metálicas (zinc, cobre, etc.)      Malo  1 Arrendado sin contrato
-## 5                          Losa hormigón      Malo  0 Arrendado sin contrato
-## 6 Planchas metálicas (zinc, cobre, etc.) Aceptable  1 Arrendado con contrato
-##              v12                    v13 numper asiste esc
-## 1  De 41 a 60 m2 Arrendada sin contrato      1     No  12
-## 2 De 61 a 100 m2 Arrendada sin contrato      1     No   7
-## 3 De 61 a 100 m2 Arrendada sin contrato      2     No  12
-## 4 De 61 a 100 m2 Arrendada sin contrato      3     No  15
-## 5 De 61 a 100 m2 Arrendada sin contrato      2     No   7
-## 6  De 30 a 40 m2 Arrendada con contrato      4     No  12
-##                              educ ytotcorh
-## 1                M. Hum. Completa   250000
-## 2                   Básica Incom.   211091
-## 3                M. Hum. Completa   593500
-## 4 Técnico Nivel Superior Completo   341667
-## 5              M. Hum. Incompleta   463333
-## 6                M. Hum. Completa  1675000</code></pre>
+#filtramos por los datos relevantes para la pregunta
+grupos_interes &lt;- c(&quot;Empleado u obrero de empresas públicas&quot;,
+                    &quot;Empleado u obrero del sector privado&quot;,
+                    &quot;Empleado u obrero del sector público (Gobierno Central o Mun&quot;)
+
+datos_interes &lt;- datos |&gt; filter(e7.subarea == &quot;Ingeniería y Profesiones Afines&quot;,
+                                 o15 %in% grupos_interes) |&gt; mutate(
+                                   ingreso_percap = ytotcorh / numper) |&gt; filter(
+                                     !is.na(ingreso_percap)) |&gt; select(
+                                       o15, ingreso_percap) |&gt; mutate(o15 = factor(o15)
+                                     )
+
+#selección de semilla
+set.seed(444)
+muestra &lt;- datos_interes |&gt; sample_n(250)
+table(muestra$o15)</code></pre>
+<pre><code>## 
+##                       Empleado u obrero de empresas públicas 
+##                                                           13 
+##                         Empleado u obrero del sector privado 
+##                                                          215 
+## Empleado u obrero del sector público (Gobierno Central o Mun 
+##                                                           22</code></pre>
+<pre class="r"><code>str(muestra)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    250 obs. of  2 variables:
+##  $ o15           : Factor w/ 3 levels &quot;Empleado u obrero de empresas públicas&quot;,..: 2 2 1 2 2 2 1 2 2 2 ...
+##  $ ingreso_percap: num  1491667 175333 599472 650614 417500 ...</code></pre>
+</div>
+<div id="hipótesis-nula-h_0-el-ingreso-per-cápita-promedio-del-hogar-es-igual-en-los-tres-sectores-ocupacionales-para-los-profesionales-de-ingeniería" class="section level3">
+<h3>- Hipótesis Nula (<span class="math inline">\(H_0\)</span>): El
+ingreso per cápita promedio del hogar es igual en los tres sectores
+ocupacionales para los profesionales de ingeniería</h3>
+<div id="mu_empresa-pública-mu_privado-mu_público" class="section level4">
+<h4>(<span class="math inline">\(\mu_{empresa pública} = \mu_{privado} =
+\mu_{público}\)</span>)</h4>
+</div>
 </div>
 </div>
 
