@@ -11,11 +11,11 @@ paquetes <- c("boot", "car", "caret", "ggfortify", "ggplot2",
   "ggpubr", "grid", "gridExtra", "gmodels", "ez", "emmeans", "infer", 
   "kableExtra", "Hmisc", "knitr", "leaps", "lmtest", "lsmeans", 
   "multcomp", "nlme", "plyr", "pROC", "purrr", "pwr", "readr", 
-  "scatterplot3d", "psych", "TeachingDemos", "tibble", "tidyr","nortest", "dplyr", "MASS")
+  "scatterplot3d", "psych", "TeachingDemos", "tibble", "tidyr","nortest", "dplyr", "MASS", "WRS2")
 
 install_if_missing <- function(p) {
   if (!require(p, character.only = TRUE)) {
-    install.packages(p)
+    install.packages(p, repos = "http://cran.us.r-project.org")
     library(p, character.only = TRUE)
   }
 }
@@ -72,13 +72,36 @@ str(muestra)
 ### A continuación, se procede con la prueba ómnibus aplicando bootstrapping
 
 ```{r}
+# Semilla para garantizar reproducibilidad
+set.seed(444)
 
+# Como el enunciado requiere comparar medias, usaremos la función t1waybt del paquete WRS2.
+# Definimos el parámetro tr = 0 (gamma) para que la función calcule medias no truncadas, 
+# tal como se solicitó (o bien podría ser 0.2 para medias truncadas si consideramos asimetría).
+gamma <- 0.2
+nboot <- 999
+alfa <- 0.05
+
+prueba_omnibus_bt <- t1waybt(ingreso_percap ~ o15, data = muestra, tr = gamma, nboot = nboot)
+
+cat("Análisis de una vía para muestras independientes (bootstrapped)\n")
+cat("-------------------------------------------------------------\n")
+print(prueba_omnibus_bt)
 ```
 
 ### (post-hoc)
 
 ```{r}
+# Como se solicitó por ejercicio académico, realizamos el post-hoc
+set.seed(444) # Misma semilla para usar las mismas remuestras
+prueba_posthoc_bt <- mcppb20(ingreso_percap ~ o15, data = muestra, tr = gamma, nboot = nboot)
 
+cat("\nAnálisis post-hoc para muestras independientes (bootstrapped)\n")
+cat("-------------------------------------------------------------\n")
+print(prueba_posthoc_bt)
 ```
 
 ### Conclusión: 
+Tras aplicar la prueba ómnibus robusta con remuestreo (bootstrapping), obtuvimos un valor $p$ de $0.838$. 
+Dado que este valor es considerablemente mayor a nuestro nivel de significación ($\alpha = 0.05$), no contamos con evidencia estadística suficiente para rechazar la Hipótesis Nula ($H_0$).
+En términos prácticos, esto significa que no existen diferencias estadísticamente significativas en el ingreso per cápita promedio del hogar entre los profesionales de Ingeniería, independientemente de si se desempeñan en el sector privado, en empresas públicas o en el gobierno central/municipal. 

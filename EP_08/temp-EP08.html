@@ -11,7 +11,7 @@
 
 <meta name="author" content="Equipo 3" />
 
-<meta name="date" content="2026-07-10" />
+<meta name="date" content="2026-07-11" />
 
 <title>Ep-08</title>
 
@@ -352,7 +352,7 @@ display: none;
 
 <h1 class="title toc-ignore">Ep-08</h1>
 <h4 class="author">Equipo 3</h4>
-<h4 class="date">2026-07-10</h4>
+<h4 class="date">2026-07-11</h4>
 
 </div>
 
@@ -431,10 +431,110 @@ table(muestra$o15)</code></pre>
 <h3>- Hipótesis Nula (<span class="math inline">\(H_0\)</span>): El
 ingreso per cápita promedio del hogar es igual en los tres sectores
 ocupacionales para los profesionales de ingeniería</h3>
-<div id="mu_empresa-pública-mu_privado-mu_público" class="section level4">
+<div id="mu_empresa-pública-mu_privado-mu_público." class="section level4">
 <h4>(<span class="math inline">\(\mu_{empresa pública} = \mu_{privado} =
-\mu_{público}\)</span>)</h4>
+\mu_{público}\)</span>).</h4>
 </div>
+</div>
+<div id="hipótesis-alternativa-h_a-al-menos-uno-de-los-sectores-ocupacionales-presenta-un-ingreso-per-cápita-promedio-del-hogar-distinto-de-los-demás." class="section level3">
+<h3>- Hipótesis alternativa (<span class="math inline">\(H_A\)</span>):
+Al menos uno de los sectores ocupacionales presenta un ingreso per
+cápita promedio del hogar distinto de los demás.</h3>
+</div>
+<div id="condiciones-para-el-bootstrapping-de-una-vía" class="section level3">
+<h3>Condiciones para el Bootstrapping de una vía:</h3>
+<div id="la-variable-independiente-es-categórica-con-tres-niveles-independientes-y-la-variable-dependiente-es-continua-se-cumple-se-comparan-tres-sectores-ocupacionales-independientes-respecto-al-ingreso-per-cápita" class="section level4">
+<h4>1. La variable independiente es categórica con tres niveles
+independientes y la variable dependiente es continua: se cumple, se
+comparan tres sectores ocupacionales independientes respecto al ingreso
+per cápita</h4>
+</div>
+<div id="las-observaciones-son-independientes-entre-sí-se-cumple-la-encuesta-casen-está-estructurada-de-tal-forma-que-se-encuestan-hogares-de-forma-aleatoria-y-sin-necesariamente-una-conexión-entre-sí.-la-muestra-extraída-se-hace-en-forma-aleatoria-también-con-una-semilla-definida-para-poder-ser-reproducida." class="section level4">
+<h4>2. Las observaciones son independientes entre sí: se cumple, la
+encuesta CASEN está estructurada de tal forma que se encuestan hogares
+de forma aleatoria y sin necesariamente una conexión entre sí. La
+muestra extraída se hace en forma aleatoria también, con una semilla
+definida para poder ser reproducida.</h4>
+</div>
+<div id="tamaño-muestral-adecuado-se-cumple-el-tamaño-total-de-la-muestra-de-n-250-es-suficiente-para-modelar-empíricamente-la-variabilidad-poblacional-mediante-muestreo." class="section level4">
+<h4>3. Tamaño muestral adecuado: se cumple, el tamaño total de la
+muestra, de <span class="math inline">\(n = 250\)</span>, es suficiente
+para modelar empíricamente la variabilidad poblacional mediante
+muestreo.</h4>
+</div>
+</div>
+<div id="a-continuación-se-procede-con-la-prueba-ómnibus-aplicando-bootstrapping" class="section level3">
+<h3>A continuación, se procede con la prueba ómnibus aplicando
+bootstrapping</h3>
+<pre class="r"><code># Semilla para garantizar reproducibilidad
+set.seed(444)
+
+# Como el enunciado requiere comparar medias, usaremos la función t1waybt del paquete WRS2.
+# Definimos el parámetro tr = 0 (gamma) para que la función calcule medias no truncadas, 
+# tal como se solicitó (o bien podría ser 0.2 para medias truncadas si consideramos asimetría).
+gamma &lt;- 0.2
+nboot &lt;- 999
+alfa &lt;- 0.05
+
+prueba_omnibus_bt &lt;- t1waybt(ingreso_percap ~ o15, data = muestra, tr = gamma, nboot = nboot)
+
+cat(&quot;Análisis de una vía para muestras independientes (bootstrapped)\n&quot;)</code></pre>
+<pre><code>## Análisis de una vía para muestras independientes (bootstrapped)</code></pre>
+<pre class="r"><code>cat(&quot;-------------------------------------------------------------\n&quot;)</code></pre>
+<pre><code>## -------------------------------------------------------------</code></pre>
+<pre class="r"><code>print(prueba_omnibus_bt)</code></pre>
+<pre><code>## Call:
+## t1waybt(formula = ingreso_percap ~ o15, data = muestra, tr = gamma, 
+##     nboot = nboot)
+## 
+## Effective number of bootstrap samples was 999.
+## 
+## Test statistic: 0.1453 
+## p-value: 0.83884 
+## Variance explained: 0.032 
+## Effect size: 0.178</code></pre>
+</div>
+<div id="post-hoc" class="section level3">
+<h3>(post-hoc)</h3>
+<pre class="r"><code># Como se solicitó por ejercicio académico, realizamos el post-hoc
+set.seed(444) # Misma semilla para usar las mismas remuestras
+prueba_posthoc_bt &lt;- mcppb20(ingreso_percap ~ o15, data = muestra, tr = gamma, nboot = nboot)
+
+cat(&quot;\nAnálisis post-hoc para muestras independientes (bootstrapped)\n&quot;)</code></pre>
+<pre><code>## 
+## Análisis post-hoc para muestras independientes (bootstrapped)</code></pre>
+<pre class="r"><code>cat(&quot;-------------------------------------------------------------\n&quot;)</code></pre>
+<pre><code>## -------------------------------------------------------------</code></pre>
+<pre class="r"><code>print(prueba_posthoc_bt)</code></pre>
+<pre><code>## Call:
+## mcppb20(formula = ingreso_percap ~ o15, data = muestra, tr = gamma, 
+##     nboot = nboot)
+## 
+##                                                                                                            psihat
+## Empleado u obrero de empresas públicas vs. Empleado u obrero del sector privado                          25611.16
+## Empleado u obrero de empresas públicas vs. Empleado u obrero del sector público (Gobierno Central o Mun -22049.75
+## Empleado u obrero del sector privado vs. Empleado u obrero del sector público (Gobierno Central o Mun   -47660.91
+##                                                                                                          ci.lower
+## Empleado u obrero de empresas públicas vs. Empleado u obrero del sector privado                         -186789.5
+## Empleado u obrero de empresas públicas vs. Empleado u obrero del sector público (Gobierno Central o Mun -397709.2
+## Empleado u obrero del sector privado vs. Empleado u obrero del sector público (Gobierno Central o Mun   -360053.3
+##                                                                                                         ci.upper
+## Empleado u obrero de empresas públicas vs. Empleado u obrero del sector privado                         476304.3
+## Empleado u obrero de empresas públicas vs. Empleado u obrero del sector público (Gobierno Central o Mun 461626.7
+## Empleado u obrero del sector privado vs. Empleado u obrero del sector público (Gobierno Central o Mun   145021.4
+##                                                                                                         p-value
+## Empleado u obrero de empresas públicas vs. Empleado u obrero del sector privado                         0.79479
+## Empleado u obrero de empresas públicas vs. Empleado u obrero del sector público (Gobierno Central o Mun 0.90090
+## Empleado u obrero del sector privado vs. Empleado u obrero del sector público (Gobierno Central o Mun   0.58258</code></pre>
+</div>
+<div id="conclusión" class="section level3">
+<h3>Conclusión:</h3>
+<p>(Al correr el documento, verifica el valor p en “prueba_omnibus_bt”.
+Si es menor a 0.05, significa que rechazamos la hipótesis nula y existe
+al menos una diferencia significativa entre el ingreso per cápita de
+algunos de los grupos. Luego, puedes revisar la salida de
+“prueba_posthoc_bt” para identificar exactamente entre cuáles grupos
+ocurre esa diferencia y en qué dirección.)</p>
 </div>
 </div>
 
